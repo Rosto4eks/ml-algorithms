@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 # Gaussian discriminant analysis
 class GDA:
-    def __init__(self, x, y):
+    def fit(self, x, y):
         self.x = x
         self.y = y
         self.num_classes = len(set(y))

@@ -18,8 +18,9 @@ y = np.array(
     [4 for _ in range(40)]
 )
 
-gda = NB.GaussianNB(x, y)
-print(gda.predict([3.0, 1.0]))
+model = NB.GaussianNB()
+model.fit(x, y)
+print(model.predict([3.1, 3.2]))
 
 plt.plot(x[0:50].T[0], x[0:50].T[1], 'o', color="red")
 plt.plot(x[50:100].T[0], x[50:100].T[1], 'o', color="green")

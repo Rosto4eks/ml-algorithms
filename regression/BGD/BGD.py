@@ -2,7 +2,7 @@ import numpy as np
 import time
 
 class BGD:
-    def __init__(self, x, y, batch_size = 30, learning_rate = 0.001):
+    def fit(self, x, y, batch_size = 30, learning_rate = 0.001):
         self.x = x
         self.y = y
         self.data_len = x.shape[0]

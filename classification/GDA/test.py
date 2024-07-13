@@ -18,8 +18,9 @@ y = np.array(
     [4 for _ in range(40)]
 )
 
-gda = GDA.GDA(x, y)
-print(gda.predict([4, 3]))
+model = GDA.GDA()
+model.fit(x, y)
+print(model.predict([4, 3]))
 
 plt.plot(x[0:50].T[0], x[0:50].T[1], 'o', color="red")
 plt.plot(x[50:100].T[0], x[50:100].T[1], 'o', color="green")

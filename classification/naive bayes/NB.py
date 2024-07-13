@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 # Gaussian Naive Bayes
 class GaussianNB:
-    def __init__(self, x, y):
+    def fit(self, x, y):
         self.x = x
         self.y = y
         self.num_classes = len(set(y))
@@ -24,10 +24,16 @@ class GaussianNB:
         for i in range(self.num_classes):
             mean = self.means[i]
             std = self.stds[i]
-            pxy = 1
-            for index, feature in enumerate(x):
-                pxy *= np.exp(- np.square(feature - mean[index]) / (2 * np.square(std[index]))) / np.sqrt(2 * np.pi * np.square(std[index]))
+
+            # pxy = 1
+            # for index, feature in enumerate(x):
+            #     pxy *= np.exp(- np.square(feature - mean[index]) / (2 * np.square(std[index]))) / np.sqrt(2 * np.pi * np.square(std[index]))
             
+            # added log for optimization, log(П [P] ) = E [ log(P) ]
+            pxy = 0
+            for index, feature in enumerate(x):
+                pxy += np.log( np.exp(- np.square(feature - mean[index]) / (2 * np.square(std[index]))) / np.sqrt(2 * np.pi * np.square(std[index])) )
+
             py = np.sum(self.y == i) / self.size
 
             predicts.append((pxy * py))
