@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import lr
+from model import LogRegression
 
 x = np.array(
     [[np.random.normal(1.5, 0.5), np.random.normal(1.5, 0.5)] for _ in range(50)] +
@@ -12,7 +12,7 @@ y = np.array(
     [1 for _ in range(50)]
 )
 
-model = lr.LogRegression()
+model = LogRegression()
 model.fit(x, y)
 model.train()
 

@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import GDA
+from model import GDA
 
 x = np.array(
     [[np.random.normal(1.5, 0.5), np.random.normal(1.5, 0.5)] for _ in range(50)] +
@@ -18,7 +18,7 @@ y = np.array(
     [4 for _ in range(40)]
 )
 
-model = GDA.GDA()
+model = GDA()
 model.fit(x, y)
 print(model.predict([4, 3]))
 

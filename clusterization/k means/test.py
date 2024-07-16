@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import random
-import k_means
+from model import K_means
 import time
 
 colors = [
@@ -19,7 +19,7 @@ X.extend(np.array([[float(random.uniform(0, 7)), random.uniform(1, 8)] for _ in 
 X.extend(np.array([[float(random.uniform(8, 12)), random.uniform(5, 8)] for _ in range(60) ]))
 X.extend(np.array([[float(random.uniform(0, 5)), random.uniform(3, 7)] for _ in range(70) ]))
 
-alg = k_means.K_means(X)
+alg = K_means(X)
 plt.ion()
 
 n_classes = 2

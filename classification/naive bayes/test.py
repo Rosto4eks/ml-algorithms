@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import NB
+from model import GaussianNB
 
 x = np.array(
     [[np.random.normal(1.5, 0.5), np.random.normal(1.5, 0.5)] for _ in range(50)] +
@@ -18,7 +18,7 @@ y = np.array(
     [4 for _ in range(40)]
 )
 
-model = NB.GaussianNB()
+model = GaussianNB()
 model.fit(x, y)
 print(model.predict([3.1, 3.2]))
 
