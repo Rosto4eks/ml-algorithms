@@ -15,7 +15,7 @@ class ID3:
         return - prob * np.log2(prob) - (1 - prob) * np.log2(1 - prob)
     
 
-    def ReLU(self, x):
+    def classify(self, x):
         if x > 0.5:
             return self.marks[0]
         return self.marks[1]
@@ -41,7 +41,7 @@ class ID3:
 
     def branch(self, node: Node, x, y, height):
         prob = len(x[y == self.marks[0]]) / len(x)
-        node.mark = self.ReLU(prob)
+        node.mark = self.classify(prob)
 
         if len(x[y == self.marks[0]]) == len(x):
             return

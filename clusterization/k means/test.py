@@ -22,7 +22,7 @@ X.extend(np.array([[float(random.uniform(0, 5)), random.uniform(3, 7)] for _ in 
 alg = K_means(X)
 plt.ion()
 
-n_classes = 2
+n_classes = 3
 iterations = 10
 
 for i in range(iterations):
