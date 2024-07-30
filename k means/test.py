@@ -19,15 +19,15 @@ X.extend(np.array([[float(random.uniform(0, 7)), random.uniform(1, 8)] for _ in 
 X.extend(np.array([[float(random.uniform(8, 12)), random.uniform(5, 8)] for _ in range(60) ]))
 X.extend(np.array([[float(random.uniform(0, 5)), random.uniform(3, 7)] for _ in range(70) ]))
 
-alg = K_means(X)
 plt.ion()
 
 n_classes = 3
 iterations = 10
 
 for i in range(iterations):
-    groups = alg.evaluate(n_classes, i)
-    centroids = alg.centeroids
+    model = K_means(iters=i, max_num=n_classes)
+    groups = model.fit(X)
+    centroids = model.centeroids
 
     plt.plot(np.array(centroids)[:, 0], np.array(centroids)[:, 1], 'o', color="black", markersize=12)
     for j in range(n_classes):

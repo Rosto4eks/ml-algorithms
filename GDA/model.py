@@ -1,20 +1,19 @@
 import numpy as np
-from matplotlib import pyplot as plt
 
 # Gaussian discriminant analysis
 class GDA:
-    def fit(self, x, y):
-        self.x = x
+    def fit(self, X, y):
+        self.X = X
         self.y = y
         self.num_classes = len(set(y))
-        self.size = x.shape[0]
-        self.shape = x.shape[1]
+        self.size = X.shape[0]
+        self.shape = X.shape[1]
 
         self.means = []
         self.cov_matrices = []
         
         for i in range(self.num_classes):
-            arr = self.x[self.y[:] == i]
+            arr = self.X[self.y[:] == i]
             self.means.append(arr.sum(axis=0) / len(arr))
             self.cov_matrices.append(np.cov(arr.T))
             

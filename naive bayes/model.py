@@ -3,18 +3,18 @@ from matplotlib import pyplot as plt
 
 # Gaussian Naive Bayes
 class GaussianNB:
-    def fit(self, x, y):
-        self.x = x
+    def fit(self, X, y):
+        self.X = X
         self.y = y
         self.num_classes = len(set(y))
-        self.size = x.shape[0]
-        self.shape = x.shape[1]
+        self.size = X.shape[0]
+        self.shape = X.shape[1]
 
         self.means = []
         self.stds = []
         
         for i in range(self.num_classes):
-            arr = self.x[self.y[:] == i]
+            arr = self.X[self.y[:] == i]
             self.means.append(arr.mean(axis=0))
             self.stds.append(arr.std(axis=0))
             

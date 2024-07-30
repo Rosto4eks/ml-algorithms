@@ -15,7 +15,7 @@ X = np.array([
 
 Y = np.array([5, 0, -20, 19, -25, 34, 15, 0, -9])
 
-model = BGD()
-model.fit(X, Y, batch_size=1)
+model = BGD(batch_size=1)
+model.fit(X, Y)
 model.train(iterations=100)
 print(model.forward(np.array([100, -100])))

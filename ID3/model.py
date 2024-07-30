@@ -9,6 +9,36 @@ class Node:
 
 
 class ID3:
+    def __init__(self, max_height = 3):
+        self.max_height = max_height
+
+
+    def fit(self, X, y):
+        self.tree = Node()
+        self.X = X
+        self.y = y
+
+        self.marks = list(set(y))
+
+        self.size = X.shape[0]
+        self.n_features = X.shape[1]
+
+        self.max_height = 3
+    
+        self.tree = Node()
+        self.branch(self.tree, self.X, self.y, 0)
+
+
+    def predict(self, x):
+        node = self.tree
+        while len(node.children) != 0:
+            for e in node.children:
+                if x[node.index] == e.feature:
+                    node = e
+                    break
+        return node.mark 
+    
+
     def entropy(self, prob):
         if prob == 1 or prob == 0: 
             return 0
@@ -58,35 +88,6 @@ class ID3:
             n.feature = feature
             self.branch(n, x[x.T[index] == feature], y[x.T[index] == feature], height + 1)
             node.children.append(n)
-    
-
-    def fit(self, x, y):
-        self.tree = Node()
-        self.x = x
-        self.y = y
-
-        self.marks = list(set(y))
-
-        self.size = x.shape[0]
-        self.n_features = x.shape[1]
-
-        self.max_height = 3
-    
-    
-    def train(self, max_height = 3):
-        self.max_height = max_height
-        self.tree = Node()
-        self.branch(self.tree, self.x, self.y, 0)
-
-
-    def predict(self, x):
-        node = self.tree
-        while len(node.children) != 0:
-            for e in node.children:
-                if x[node.index] == e.feature:
-                    node = e
-                    break
-        return node.mark 
 
     
 def tree_runner(node: Node):

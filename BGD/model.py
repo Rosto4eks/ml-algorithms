@@ -2,13 +2,16 @@ import numpy as np
 import time
 
 class BGD:
-    def fit(self, x, y, batch_size = 30, learning_rate = 0.001):
-        self.x = x
-        self.y = y
-        self.data_len = x.shape[0]
-        self.features_len = x.shape[1]
+    def __init__(self, batch_size = 30, learning_rate = 0.001):
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+
+    def fit(self, X, y):
+        self.X = X
+        self.y = y
+        self.data_len = X.shape[0]
+        self.features_len = X.shape[1]
+        
         self.batches = self.get_batches()
         self.w = np.random.randn(self.features_len)
         self.bias = 0
@@ -18,7 +21,7 @@ class BGD:
         batches = []
         while i < self.data_len:
             batches.append([
-                self.x[i : i + self.batch_size],
+                self.X[i : i + self.batch_size],
                 self.y[i : i + self.batch_size]
             ])
             i += self.batch_size

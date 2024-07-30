@@ -2,10 +2,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 class K_means:
-    def __init__(self, data):
+    def __init__(self, max_num = 3, iters = 10):
+        self.n = max_num
+        self.iters = iters
+
+    def fit(self, data):
         self.data = np.array(data)
         self.n = 3
         self.shape = self.data.shape[1]
+
+        self.init_groups()
+        for _ in range(self.iters):
+            self.get_centeroids()
+            self.get_groups()
+        return self.groups
 
     def init_groups(self):
         self.groups = [[] for _ in range(self.n)]
@@ -16,7 +26,6 @@ class K_means:
             index += 1
             if index >= self.n:
                 index = 0 
-        print(self.groups[0])
 
     def get_centeroids(self):
         for index, group in enumerate(self.groups):
@@ -38,10 +47,3 @@ class K_means:
     def get_distance(self, p1, p2):
         return np.sqrt(np.square(np.abs(p1 - p2)).sum())
     
-    def evaluate(self, n, iters):
-        self.n = n
-        self.init_groups()
-        for _ in range(iters):
-            self.get_centeroids()
-            self.get_groups()
-        return self.groups

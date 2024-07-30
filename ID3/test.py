@@ -24,6 +24,5 @@ y = np.array([
 
 model = ID3()
 model.fit(x, y)
-model.train()
 
-print(model.predict(["sunny", "hot", "medium", "yes"]))
+print(model.predict(["sunny", "hot", "high", "no"]))

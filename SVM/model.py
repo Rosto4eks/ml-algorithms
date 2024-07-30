@@ -1,13 +1,13 @@
 import numpy as np
 
 class LinearSVM:
-    def fit(self, x, y, C = 10000.0):
-        self.x = x
+    def fit(self, X, y, C = 1.0):
+        self.X = X
         self.y = y
         self.C = C
 
-        self.size = x.shape[0]
-        self.n_features = x.shape[1]
+        self.size = X.shape[0]
+        self.n_features = X.shape[1]
 
         self.w = np.random.randn(self.n_features)
         self.b = 0
@@ -19,7 +19,7 @@ class LinearSVM:
         return y * (self.w.dot(x) + self.b)
 
     def loss(self):
-        return np.maximum(0, 1 - self.margin(self.x, self.y)).mean()  + 0.5 * np.dot(self.w, self.w)
+        return np.maximum(0, 1 - self.margin(self.X, self.y)).mean()  + 0.5 * np.dot(self.w, self.w)
     
     def diff(self, x, y):
         return - self.C * y * x
@@ -30,7 +30,7 @@ class LinearSVM:
             count = 0
             w = 0
             b = 0
-            for x,y in zip(self.x, self.y):
+            for x,y in zip(self.X, self.y):
                 if 1 - self.margin(x, y) > 0:
                     w += learning_rate * self.diff(x, y)
                     b += learning_rate * self.diff(1, y)
@@ -44,17 +44,21 @@ class LinearSVM:
                 count += 1
 
 class SVM:
-    def __init__(self, kernel = "linear", C = 10, max_passes = 1000, tol = 1e-3, poly_degree = 3, rbf_sigma = 1 / np.exp(1) / 4):
+    def __init__(self, kernel = "linear", \
+                 C = 1, max_passes = 100, \
+                 tol = 1e-3, poly_degree = 3, \
+                 rbf_sigma = 1 / np.exp(1) / 4, sigm_a = 0.1, sigm_b = -1):
         self.kernel = kernel
         self.C = C
         self.max_passes = max_passes
         self.tol = tol
         self.poly_degree = poly_degree
         self.rbf_sigma = rbf_sigma
+        self.sigm_a = sigm_a
+        self.sigm_b = sigm_b
 
 
     def fit(self, X, y):
-
         self.X = X
         self.y = y
         self.y[self.y == 0] = -1
@@ -121,7 +125,6 @@ class SVM:
                     changed_alphas += 1
             
             if changed_alphas == 0:
-                print(passes)
                 passes += 1
 
     def check_kkt(self, x):
@@ -147,7 +150,9 @@ class SVM:
         if self.kernel == "linear":
             return np.dot(x_1, x_2.T)
         if self.kernel == "poly":
-            return np.power(np.dot(x_1, x_2.T) + 1, self.poly_degree)
+            return np.power(np.dot(x_1, x_2.T) + 2, self.poly_degree)
+        if self.kernel == "sigmoid":
+            return np.tanh(self.sigm_a * np.dot(x_1, x_2.T) + self.sigm_b)
         if self.kernel == "rbf":
             if np.ndim(x_1) == 1:
                 x_1 = x_1[np.newaxis, :]
