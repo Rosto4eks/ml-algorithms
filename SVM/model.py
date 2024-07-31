@@ -47,7 +47,7 @@ class SVM:
     def __init__(self, kernel = "linear", \
                  C = 1, max_passes = 100, \
                  tol = 1e-3, poly_degree = 3, \
-                 rbf_sigma = 1 / np.exp(1) / 4, sigm_a = 0.1, sigm_b = -1):
+                 rbf_sigma = 1 / np.exp(1) / 4, sigm_a = 0.01, sigm_b = 2):
         self.kernel = kernel
         self.C = C
         self.max_passes = max_passes
