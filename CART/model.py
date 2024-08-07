@@ -20,7 +20,7 @@ class Node:
 
     
 class Cart:
-    def __init__(self, type = "c", pruning = True, alpha = 0.0001, max_height = np.inf, node_min_size = 1, min_allowed_Gini = 0):
+    def __init__(self, type = "c", pruning = True, alpha = 0.001, max_height = np.inf, node_min_size = 1, min_allowed_Gini = 0):
         self.type = type
         self.pruning = pruning
         self.alpha = alpha
@@ -31,10 +31,9 @@ class Cart:
 
     def fit(self, X, y):
         if self.pruning:
-            self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=0.2, random_state=42)
-            self.root = self.branch(self.X_train, self.y_train)
-            self.root = self.prune(self.root, self.root.left)
-            self.root = self.prune(self.root, self.root.right, False)
+            X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.25, random_state=42)
+            self.root = self.branch(X_train, y_train)
+            self.root = self.prune(self.root, X_val, y_val)
         else:
             self.root = self.branch(X, y)
 
@@ -79,35 +78,22 @@ class Cart:
             
         return inf_index, inf_val
     
-    def prune(self, parent, node, left = True):
+    def prune(self, node, X, y):
         if node.y != None:
-            return parent
-        
-        node = self.prune(node, node.left)
-        node = self.prune(node, node.right, left = False)
+            return node
 
-        errs = [self.MSE(), 0, 0]
-        nodes = [node, node.left, node.right]
+        mask = node.predict(X)
+        if mask.sum() == len(mask) or mask.sum() == 0:
+            return Node(y=self.get_leaf_val(y))
+            
+        node.left = self.prune(node.left, X[mask], y[mask])
+        node.right = self.prune(node.right, X[~mask], y[~mask])
 
-        if left:
-            parent.left = node.left
-        else:
-            parent.right = node.left
-        errs[1] = self.MSE()
+        nodes =[Node(y=self.get_leaf_val(y)), node, node.left, node.right]
+        preds = [self.predictNode(X, n) for n in nodes]
+        errs = [self.MSE(preds[i], y, nodes[i]) for i in range(4)]
 
-        if left:
-            parent.left = node.right
-        else:
-            parent.right = node.right
-        errs[2] = self.MSE()
-
-        min_ind = np.argmin(errs)
-        if left:
-            parent.left = nodes[min_ind]
-        else:
-            parent.right = nodes[min_ind]
-        
-        return parent
+        return nodes[np.argmin(errs)]
 
      
     def stop_criteria(self, y, height):
@@ -132,17 +118,19 @@ class Cart:
         probs = counts / len(Y)
         return sum(p * (1 - p) for p in probs)
     
-    def MSE(self):
-        return np.square(self.predict(self.X_val) - self.y_val).sum() / len(self.X_val) + self.alpha * self.size(self.root)
-    
+    def MSE(self, Y, y, node):
+        return np.square(Y - y).sum() / len(Y) + self.alpha * self.size(node)
     
     def predict(self, X):
+        return self.predictNode(X, self.root)
+    
+    def predictNode(self, X, node):
         if np.ndim(X) == 1:
             X = X[np.newaxis, :]
 
         predictions = np.empty(shape=X.shape[0])
         for i in range(len(X)):
-            n = self.root
+            n = node
             while n.y == None:
                 n = n.left if n.predict(X[i]) else n.right 
 
