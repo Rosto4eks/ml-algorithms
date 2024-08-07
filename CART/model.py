@@ -15,9 +15,9 @@ class Node:
         return x[:, self.f_index] < self.f_val
 
     
-
 class Cart:
-    def __init__(self, max_height = 3, node_min_size = 10, min_allowed_Gini = 0):
+    def __init__(self, type = "c", max_height = 3, node_min_size = 10, min_allowed_Gini = 0):
+        self.type = type
         self.max_height = max_height
         self.node_min_size = node_min_size
         self.min_allowed_Gini = min_allowed_Gini
@@ -29,8 +29,7 @@ class Cart:
     def branch(self, X, y, height = 0):
         n = Node()
         if self.stop_criteria(y, height):
-            vals, counts = np.unique(y, return_counts=True)
-            n.y = vals[np.argmax(counts)]
+            n.y = self.get_leaf_val(y)
             return n
         
         f_index, f_val = self.fitNode(X, y)
@@ -58,10 +57,10 @@ class Cart:
                 pred = (xs[p_index][f_index] + xs[p_index - 1][f_index]) / 2
                 mask = xs[:, f_index] < pred
 
-                left_gini = self.Gini(ys[mask])
-                right_gini = self.Gini(ys[~mask])
+                left_H = self.H(ys[mask])
+                right_H = self.H(ys[~mask])
                 left_c = len(ys[mask]) / len(ys)
-                inf = parent_gini - left_c * left_gini - (1 - left_c) * right_gini
+                inf = parent_gini - left_c * left_H - (1 - left_c) * right_H
 
                 if inf > inf_dif:
                     inf_dif = inf
@@ -75,12 +74,25 @@ class Cart:
         c2 = self.Gini(y) <= self.min_allowed_Gini
         c3 = len(y) <= self.node_min_size
         return c1 | c2 | c3
+    
+    def get_leaf_val(self, Y):
+        if self.type == "c":
+            vals, counts = np.unique(Y, return_counts=True)
+            return vals[np.argmax(counts)]
+        else:
+            return np.mean(Y)
 
+
+    def H(self, Y):
+        return self.Gini(Y) if self.type == "c" else self.MSE(Y)
 
     def Gini(self, Y):
         _ , counts = np.unique(Y, return_counts=True)
         probs = counts / len(Y)
         return sum(p * (1 - p) for p in probs)
+    
+    def MSE(self, Y):
+        return np.var(Y)
     
     def predict(self, x):
         n = self.root
