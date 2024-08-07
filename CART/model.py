@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 class Node:
     def __init__(self, f_index=None, f_val=None, y=None):
@@ -13,18 +14,29 @@ class Node:
         if np.ndim(x) == 1:
             x = x[np.newaxis, :]
         return x[:, self.f_index] < self.f_val
+    
+    def copy(self):
+        return Node(self.f_index, self.f_val, self.y)
 
     
 class Cart:
-    def __init__(self, type = "c", max_height = 3, node_min_size = 10, min_allowed_Gini = 0):
+    def __init__(self, type = "c", pruning = True, alpha = 0.0001, max_height = np.inf, node_min_size = 1, min_allowed_Gini = 0):
         self.type = type
+        self.pruning = pruning
+        self.alpha = alpha
         self.max_height = max_height
         self.node_min_size = node_min_size
         self.min_allowed_Gini = min_allowed_Gini
 
 
     def fit(self, X, y):
-        self.root = self.branch(X, y)
+        if self.pruning:
+            self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+            self.root = self.branch(self.X_train, self.y_train)
+            self.root = self.prune(self.root, self.root.left)
+            self.root = self.prune(self.root, self.root.right, False)
+        else:
+            self.root = self.branch(X, y)
 
     def branch(self, X, y, height = 0):
         n = Node()
@@ -66,7 +78,38 @@ class Cart:
                     inf_val = pred
             
         return inf_index, inf_val
-                
+    
+    def prune(self, parent, node, left = True):
+        if node.y != None:
+            return parent
+        
+        node = self.prune(node, node.left)
+        node = self.prune(node, node.right, left = False)
+
+        errs = [self.MSE(), 0, 0]
+        nodes = [node, node.left, node.right]
+
+        if left:
+            parent.left = node.left
+        else:
+            parent.right = node.left
+        errs[1] = self.MSE()
+
+        if left:
+            parent.left = node.right
+        else:
+            parent.right = node.right
+        errs[2] = self.MSE()
+
+        min_ind = np.argmin(errs)
+        if left:
+            parent.left = nodes[min_ind]
+        else:
+            parent.right = nodes[min_ind]
+        
+        return parent
+
+     
     def stop_criteria(self, y, height):
         c1 = height >= self.max_height
         c2 = self.Gini(y) <= self.min_allowed_Gini
@@ -82,19 +125,32 @@ class Cart:
 
 
     def H(self, Y):
-        return self.Gini(Y) if self.type == "c" else self.MSE(Y)
+        return self.Gini(Y) if self.type == "c" else np.var(Y)
 
     def Gini(self, Y):
         _ , counts = np.unique(Y, return_counts=True)
         probs = counts / len(Y)
         return sum(p * (1 - p) for p in probs)
     
-    def MSE(self, Y):
-        return np.var(Y)
+    def MSE(self):
+        return np.square(self.predict(self.X_val) - self.y_val).sum() / len(self.X_val) + self.alpha * self.size(self.root)
     
-    def predict(self, x):
-        n = self.root
-        while n.y == None:
-            n = n.left if n.predict(x) else n.right 
+    
+    def predict(self, X):
+        if np.ndim(X) == 1:
+            X = X[np.newaxis, :]
 
-        return n.y
+        predictions = np.empty(shape=X.shape[0])
+        for i in range(len(X)):
+            n = self.root
+            while n.y == None:
+                n = n.left if n.predict(X[i]) else n.right 
+
+            predictions[i] = n.y
+
+        return predictions
+    
+    def size(self, node):
+        if node.y != None:
+            return 1
+        return 1 + self.size(node.left) + self.size(node.right)
