@@ -43,11 +43,9 @@ class Cart:
         return n
     
     def fitNode(self, X, y):
-        inf_dif = -np.inf
+        inf_dif = np.inf
         inf_index = None
         inf_val = None
-
-        parent_gini = self.Gini(y)
 
         for f_index in range(X.shape[1]):
             indices = np.argsort(X[:, f_index])
@@ -60,9 +58,9 @@ class Cart:
                 left_H = self.H(ys[mask])
                 right_H = self.H(ys[~mask])
                 left_c = len(ys[mask]) / len(ys)
-                inf = parent_gini - left_c * left_H - (1 - left_c) * right_H
+                inf = left_c * left_H + (1 - left_c) * right_H
 
-                if inf > inf_dif:
+                if inf < inf_dif:
                     inf_dif = inf
                     inf_index = f_index
                     inf_val = pred
